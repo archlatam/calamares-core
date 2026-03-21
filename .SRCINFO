@@ -1,7 +1,7 @@
 pkgbase = calamares-core
 	pkgdesc = Distribution-independent installer framework
-	pkgver = 3.4.3.r2.g8bcd31271
-	pkgrel = 1
+	pkgver = 3.4.3.r2.g9573a4a06
+	pkgrel = 3
 	url = https://codeberg.org/m4teo/calamares
 	arch = i686
 	arch = x86_64
@@ -45,7 +45,7 @@ pkgbase = calamares-core
 	conflicts = calamares-eo
 	conflicts = calamares-dev
 	replaces = calamares-dev
-	source = git+https://codeberg.org/m4teo/calamares.git#commit=8bcd31271
+	source = git+https://codeberg.org/m4teo/calamares.git#commit=9573a4a06
 	source = calamares.desktop
 	source = calamares_polkit
 	source = 49-nopasswd-calamares.rules

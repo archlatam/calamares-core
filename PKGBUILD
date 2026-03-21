@@ -2,9 +2,9 @@
 # Contributor: Philip Müller <philm[at]manjaro[dog]org>
 
 pkgname=calamares-core
-pkgver=3.4.3.r2.g8bcd31271
-pkgrel=1
-_commit=8bcd31271
+pkgver=3.4.3.r2.g9573a4a06
+pkgrel=3
+_commit=9573a4a06
 pkgdesc='Distribution-independent installer framework'
 arch=('i686' 'x86_64')
 url="https://codeberg.org/m4teo/calamares"
