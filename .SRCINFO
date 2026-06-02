@@ -1,7 +1,7 @@
 pkgbase = calamares-core
 	pkgdesc = Distribution-independent installer framework
 	pkgver = 3.4.3.r2.g90d2881f98
-	pkgrel = 5
+	pkgrel = 6
 	url = https://codeberg.org/m4teo/calamares
 	arch = i686
 	arch = x86_64
