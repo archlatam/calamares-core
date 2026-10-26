@@ -1,0 +1,129 @@
+diff --git a/src/modules/netinstall/NetInstallPage.cpp b/src/modules/netinstall/NetInstallPage.cpp
+index 9c70e97..d956aee 100644
+--- a/src/modules/netinstall/NetInstallPage.cpp
++++ b/src/modules/netinstall/NetInstallPage.cpp
+@@ -70,11 +70,22 @@ NetInstallPage::onActivate()
+     // The netinstallSelect global storage value can be used to make additional items selected by default
+     Calamares::GlobalStorage* gs = Calamares::JobQueue::instance()->globalStorage();
+     const QStringList selectNames = gs->value( "netinstallSelect" ).toStringList();
+-    if ( !selectNames.isEmpty() )
++
++    QStringList toUnselect;
++    for ( const auto& name : m_alreadySelected )
+     {
+-        m_config->model()->setSelections( selectNames );
++        if ( !selectNames.contains( name ) )
++        {
++            toUnselect.append( name );
++        }
+     }
+ 
++    if ( !selectNames.isEmpty() || !toUnselect.isEmpty() )
++    {
++        m_config->model()->updateSelections( selectNames, toUnselect );
++    }
++    m_alreadySelected = selectNames;
++
+     // If NetInstallAdd is found in global storage, add those items to the tree
+     const QVariantList groups = gs->value( "netinstallAdd" ).toList();
+     if ( !groups.isEmpty() )
+diff --git a/src/modules/netinstall/NetInstallPage.h b/src/modules/netinstall/NetInstallPage.h
+index 5b10b5c..c6edf3a 100644
+--- a/src/modules/netinstall/NetInstallPage.h
++++ b/src/modules/netinstall/NetInstallPage.h
+@@ -20,6 +20,7 @@
+ #include "locale/TranslatableConfiguration.h"
+ 
+ #include <QString>
++#include <QStringList>
+ #include <QWidget>
+ 
+ #include <memory>
+@@ -48,6 +49,7 @@ public:
+     void expandGroups();
+ 
+ private:
++    QStringList m_alreadySelected;
+     Config* m_config;
+     Ui::Page_NetInst* ui;
+ };
+diff --git a/src/modules/netinstall/PackageModel.cpp b/src/modules/netinstall/PackageModel.cpp
+index 98eb446..8709752 100644
+--- a/src/modules/netinstall/PackageModel.cpp
++++ b/src/modules/netinstall/PackageModel.cpp
+@@ -15,21 +15,34 @@
+ #include "utils/Variant.h"
+ #include "utils/Yaml.h"
+ 
+-/// Recursive helper for setSelections()
++/// Recursive helper for updateSelections()
+ static void
+-setSelections( const QStringList& selectNames, PackageTreeItem* item )
++updateSelections( const QStringList& selectNames, const QStringList& unselectNames, PackageTreeItem* item )
+ {
+     for ( int i = 0; i < item->childCount(); i++ )
+     {
+         auto* child = item->child( i );
+-        setSelections( selectNames, child );
++        updateSelections( selectNames, unselectNames, child );
+     }
+-    if ( item->isGroup() && selectNames.contains( item->name() ) )
++    if ( item->isGroup() )
+     {
+-        item->setSelected( Qt::CheckState::Checked );
++        if ( selectNames.contains( item->name() ) )
++        {
++            item->setSelected( Qt::CheckState::Checked );
++        }
++        else if ( unselectNames.contains( item->name() ) )
++        {
++            item->setSelected( Qt::CheckState::Unchecked );
++        }
+     }
+ }
+ 
++static void
++setSelections( const QStringList& selectNames, PackageTreeItem* item )
++{
++    updateSelections( selectNames, {}, item );
++}
++
+ /** @brief Collects all the "source" values from @p groupList
+  *
+  * Iterates over @p groupList and returns all nonempty "source"
+@@ -217,6 +230,15 @@ PackageModel::setSelections( const QStringList& selectNames )
+     }
+ }
+ 
++void
++PackageModel::updateSelections( const QStringList& selectNames, const QStringList& unselectNames )
++{
++    if ( m_rootItem )
++    {
++        ::updateSelections( selectNames, unselectNames, m_rootItem );
++    }
++}
++
+ PackageTreeItem::List
+ PackageModel::getPackages() const
+ {
+diff --git a/src/modules/netinstall/PackageModel.h b/src/modules/netinstall/PackageModel.h
+index 01334fe..f10b52d 100644
+--- a/src/modules/netinstall/PackageModel.h
++++ b/src/modules/netinstall/PackageModel.h
+@@ -64,6 +64,15 @@ public:
+      */
+     void setSelections( const QStringList& selectNames );
+ 
++    /** @brief Sets and unsets the checked flag on matching groups in the tree
++     *
++     * Recursively traverses the tree pointed to by m_rootItem.
++     * If a group name matches any of the items in @p selectNames, it is checked.
++     * If a group name matches any of the items in @p unselectNames, it is unchecked.
++     *
++     */
++    void updateSelections( const QStringList& selectNames, const QStringList& unselectNames );
++
+     PackageTreeItem::List getPackages() const;
+     PackageTreeItem::List getItemPackages( PackageTreeItem* item ) const;
+ 

@@ -1,0 +1,5 @@
+src/
+pkg/
+calamares/
+*.pkg.tar.zst
+*.pkg.tar.zst.sig
