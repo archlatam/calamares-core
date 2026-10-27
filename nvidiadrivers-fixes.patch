@@ -1,0 +1,71 @@
+--- a/src/modules/nvidiadrivers/main.py
++++ b/src/modules/nvidiadrivers/main.py
+@@ -56,6 +56,7 @@
+             continue
+ 
+         # Intentar obtener el nombre comercial desde udev/hwdb.
++        model = None
+         try:
+             out = subprocess.check_output(
+                 ["udevadm", "info", "-q", "property", "-p", dev],
+@@ -65,9 +66,14 @@
+             for line in out.splitlines():
+                 if line.startswith("ID_MODEL_FROM_DATABASE="):
+                     return line.split("=", 1)[1]
++                if line.startswith("ID_MODEL="):
++                    model = line.split("=", 1)[1]
+         except Exception:
+             pass
+ 
++        if model:
++            return model
++
+         return "NVIDIA (sysfs)"
+ 
+     return None
+@@ -78,7 +84,7 @@
+     Devuelve la lista de paquetes según la generación de la GPU.
+     """
+     # Turing o superior: driver open
+-    if re.search(r"GTX 16|RTX|TU1|GA1|AD1|GB2", gpu, re.I):
++    if re.search(r"GTX 16|RTX|TU1|GA1|AD1|GH1|GB[12]", gpu, re.I):
+         return [
+             "nvidia-open-dkms",
+             "nvidia-utils",
+@@ -175,10 +181,13 @@
+ 
+     packages = _driver_packages(gpu)
+     if not packages:
+-        libcalamares.utils.warning(
+-            "nvidiadrivers: GPU NVIDIA sin driver compatible: " + gpu
++        message = (
++            "GPU NVIDIA detectada pero sin driver compatible: "
++            + gpu
++            + ". Desmarcá 'Instalar drivers NVIDIA' o usá nouveau."
+         )
+-        return None
++        libcalamares.utils.warning("nvidiadrivers: " + message)
++        return ("nvidiadrivers", message)
+ 
+     root = libcalamares.globalstorage.value("rootMountPoint")
+     if not root:
+@@ -195,6 +204,19 @@
+         check_target_env_call(
+             ["pacman", "-S", "--noconfirm", "--needed"] + packages
+         )
++
++        # nvidia-prime es opcional: no debe abortar la instalación del driver.
++        # Se instala después de nvidia-utils/nvidia-580xx-utils para que, en
++        # la rama legacy, pacman resuelva nvidia-utils con el paquete 580xx.
++        try:
++            check_target_env_call(
++                ["pacman", "-S", "--noconfirm", "--needed", "nvidia-prime"]
++            )
++        except Exception as e:
++            libcalamares.utils.warning(
++                "nvidiadrivers: no se pudo instalar nvidia-prime: " + str(e)
++            )
++
+         _write_configs(root)
+ 
+         if libcalamares.job.configuration.get(

@@ -1,7 +1,7 @@
 pkgbase = calamares-core
 	pkgdesc = Distribution-independent installer framework
 	pkgver = 3.4.3.r16.g54b561766
-	pkgrel = 9
+	pkgrel = 10
 	url = https://codeberg.org/m4teo/calamares
 	arch = i686
 	arch = x86_64
@@ -48,12 +48,14 @@ pkgbase = calamares-core
 	source = git+https://codeberg.org/m4teo/calamares.git#commit=54b56176697f07127feb16f90aa7a2aa7e27b52e
 	source = netinstall-selection.patch
 	source = partition-align-4k.patch
+	source = nvidiadrivers-fixes.patch
 	source = calamares.desktop
 	source = calamares_polkit
 	source = 49-nopasswd-calamares.rules
 	sha256sums = SKIP
 	sha256sums = 19c70cfbbae161102f0653054ff0074104725838dc1f412c3355e616fca11c17
 	sha256sums = 793f9963bd401c697b7844b18be1a40d2b56663f0c45adf7c90875f18d058310
+	sha256sums = 99db5a01d2972a2df471b132a312643b3b36cced3d73506c3a9493ffd28c6459
 	sha256sums = 2a3a9f55004c08230613f982a0ebedcba2d39e03a89d21071e34afc045e5ac8b
 	sha256sums = c176b28007bd1c1f23d8dbb2c936fa54d0c01bacfb67290ddad597606c129df3
 	sha256sums = 56d85ff6bf860b9559b8c9f997ad9b1002f3fccc782073760eca505e3bddd176
