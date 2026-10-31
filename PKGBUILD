@@ -9,7 +9,7 @@ pkgver=3.4.3.r16.g54b561766
 #   - instalar nvidia-prime (prime-run) sin romper la rama legacy
 # pkgrel 9: backport 4K partition alignment fix for LUKS2 (Calamares #2480 / PR #2490)
 #           + CachyOS netinstall selection fix (avoid KDE/GNOME accumulation on revisit)
-pkgrel=10
+pkgrel=11
 _commit=54b56176697f07127feb16f90aa7a2aa7e27b52e
 pkgdesc='Distribution-independent installer framework'
 arch=('i686' 'x86_64')
@@ -67,26 +67,27 @@ source=(
   "netinstall-selection.patch"
   "partition-align-4k.patch"
   "nvidiadrivers-fixes.patch"
+  "nvidiadrivers-update.patch"
   "calamares.desktop"
   "calamares_polkit"
   "49-nopasswd-calamares.rules"
 )
 
-sha256sums=(
-  'SKIP'
-  '19c70cfbbae161102f0653054ff0074104725838dc1f412c3355e616fca11c17'
-  '793f9963bd401c697b7844b18be1a40d2b56663f0c45adf7c90875f18d058310'
-  '99db5a01d2972a2df471b132a312643b3b36cced3d73506c3a9493ffd28c6459'
-  '2a3a9f55004c08230613f982a0ebedcba2d39e03a89d21071e34afc045e5ac8b'
-  'c176b28007bd1c1f23d8dbb2c936fa54d0c01bacfb67290ddad597606c129df3'
-  '56d85ff6bf860b9559b8c9f997ad9b1002f3fccc782073760eca505e3bddd176'
-)
+sha256sums=('SKIP'
+            '19c70cfbbae161102f0653054ff0074104725838dc1f412c3355e616fca11c17'
+            '793f9963bd401c697b7844b18be1a40d2b56663f0c45adf7c90875f18d058310'
+            '99db5a01d2972a2df471b132a312643b3b36cced3d73506c3a9493ffd28c6459'
+            '4db1bffce3e44b0578d15dc33f0e408fb25ba6052ef255286864008a406f7c25'
+            '2a3a9f55004c08230613f982a0ebedcba2d39e03a89d21071e34afc045e5ac8b'
+            'c176b28007bd1c1f23d8dbb2c936fa54d0c01bacfb67290ddad597606c129df3'
+            '56d85ff6bf860b9559b8c9f997ad9b1002f3fccc782073760eca505e3bddd176')
 
 prepare() {
   cd "${srcdir}/calamares"
   patch --batch -Np1 -i "${srcdir}/netinstall-selection.patch"
   patch --batch -Np1 -i "${srcdir}/partition-align-4k.patch"
   patch --batch -Np1 -i "${srcdir}/nvidiadrivers-fixes.patch"
+  patch --batch -Np1 -i "${srcdir}/nvidiadrivers-update.patch"
   # Opcional: modificar versión en CMakeLists si es necesario
   # sed -i -e "s|set(CALAMARES_VERSION .*|set(CALAMARES_VERSION ${pkgver})|" CMakeLists.txt
 }

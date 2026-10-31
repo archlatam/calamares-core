@@ -1,0 +1,75 @@
+diff --git a/src/modules/nvidiadrivers/main.py b/src/modules/nvidiadrivers/main.py
+index 2002a5298..b437b3305 100644
+--- a/src/modules/nvidiadrivers/main.py
++++ b/src/modules/nvidiadrivers/main.py
+@@ -82,6 +82,7 @@ def _driver_packages(gpu):
+         return [
+             "nvidia-open-dkms",
+             "nvidia-utils",
++            "nvidia-settings",
+             "lib32-nvidia-utils",
+             "libva-nvidia-driver",
+         ]
+@@ -121,25 +122,52 @@ def _kernel_headers(root):
+     return sorted(headers) or ["linux-headers"]
+ 
+ 
++# def _installation_allowed():
++#     """
++#     Comprueba si el módulo está habilitado y si el usuario seleccionó
++#     la opción en la interfaz.
++#     """
++#     conf = libcalamares.job.configuration
++#
++#     if not conf.get("enabled", True):
++#         return False
++#
++#     chooser_id = conf.get("packagechooserId", "")
++#     if chooser_id:
++#         key = "packagechooser_" + chooser_id
++#         choice = libcalamares.globalstorage.value(key)
++#         # Si no existe la clave o está vacía, el usuario no lo seleccionó.
++#         if not choice:
++#             return False
++#
++#     return True
++
+ def _installation_allowed():
+     """
+-    Comprueba si el módulo está habilitado y si el usuario seleccionó
+-    la opción en la interfaz.
++    Comprueba si el módulo está habilitado y si el usuario
++    seleccionó instalar los drivers NVIDIA.
+     """
+     conf = libcalamares.job.configuration
+ 
+     if not conf.get("enabled", True):
+         return False
+ 
+-    chooser_id = conf.get("packagechooserId", "")
+-    if chooser_id:
+-        key = "packagechooser_" + chooser_id
+-        choice = libcalamares.globalstorage.value(key)
+-        # Si no existe la clave o está vacía, el usuario no lo seleccionó.
+-        if not choice:
+-            return False
++    chooser_id = conf.get("packagechooserId", "nvidia")
++    key = "packagechooser_" + chooser_id
+ 
+-    return True
++    choice = libcalamares.globalstorage.value(key)
++
++    libcalamares.utils.debug(
++        "nvidiadrivers: valor de selección: " + repr(choice)
++    )
++
++    if not choice:
++        libcalamares.utils.debug(
++            "nvidiadrivers: usuario omitió la instalación NVIDIA"
++        )
++        return False
++
++    return "nvidia" in str(choice).split(",")
+ 
+ 
+ def _write_configs(root):
